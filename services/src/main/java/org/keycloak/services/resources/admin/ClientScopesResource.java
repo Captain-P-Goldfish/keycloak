@@ -107,6 +107,18 @@ public class ClientScopesResource {
         try {
             ClientScopeModel clientModel = RepresentationToModel.createClientScope(session, realm, rep);
 
+            session.getKeycloakSessionFactory().publish(new ClientScopeModel.ClientScopeCreatedEvent() {
+                @Override
+                public ClientScopeModel getClientScope() {
+                    return clientModel;
+                }
+
+                @Override
+                public KeycloakSession getKeycloakSession() {
+                    return session;
+                }
+            });
+
             adminEvent.operation(OperationType.CREATE).resourcePath(session.getContext().getUri(), clientModel.getId()).representation(rep).success();
 
             return Response.created(session.getContext().getUri().getAbsolutePathBuilder().path(clientModel.getId()).build()).build();
